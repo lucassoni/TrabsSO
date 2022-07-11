@@ -9,6 +9,11 @@
 
 #include <ucontext.h>		// biblioteca POSIX de trocas de contexto
 
+#define PRONTA 0
+#define TERMINADA 1
+#define SUSPENSA 2
+
+
 // Estrutura que define um Task Control Block (TCB)
 typedef struct task_t
 {

@@ -1,15 +1,14 @@
 #include "ppos.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "queue.h"
 
 #define DEBUG
 
 #define STACKSIZE 64*1024	/* tamanho de pilha das threads */
 
-int taskID;
-task_t *curTask, *prevTask, mainTask;
-
-
+int taskID, quantTasks;
+task_t *curTask, *prevTask, mainTask, dispatcherTask, *readyQueue = NULL;
 
 void ppos_init() {
     /* desativa o buffer da saida padrao (stdout), usado pela função printf */
@@ -23,6 +22,8 @@ void ppos_init() {
     getcontext(&(mainTask.context));
 
     curTask = &mainTask;
+
+    //task_create(&dispatcherTask);
 
     #ifdef DEBUG
     printf("PPOS: system initialized");
@@ -92,4 +93,19 @@ int task_switch(task_t *task) {
 // retorna o identificador da tarefa corrente (main deve ser 0)
 int task_id() {
     return curTask->id;
+}
+
+static void dispatcher() {
+    while (quantTasks > 0) {
+        task_t *next = scheduler();
+        if (!next) {
+            fprintf(stderr, "erro task nula");
+            return -1;
+        }
+        task_switch(next);
+        if (next->status == TERMINADA) {
+            queue_remove((queue_t **) &readyQueue, next);
+        }       
+    }
+    task_exit(0);
 }
