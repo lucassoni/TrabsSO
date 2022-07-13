@@ -3,8 +3,6 @@
 #include <stdio.h>
 #include "queue.h"
 
-#define DEBUG
-
 #define STACKSIZE 64*1024	/* tamanho de pilha das threads */
 
 int taskID, quantTasks;
@@ -29,10 +27,12 @@ void ppos_init() {
 
     curTask = &mainTask;
 
-    //task_create(&dispatcherTask);
+    quantTasks = 0;
+
+    task_create(&dispatcherTask, dispatcher, NULL);
 
     #ifdef DEBUG
-    printf("PPOS: system initialized");
+    printf("PPOS: system initialized\n");
     #endif
 }
 
@@ -62,7 +62,13 @@ int task_create(task_t *task, void (*start_func)(void *), void *arg) {
     task->next = NULL;
     taskID++;
     task->id = taskID;
+    task->status = PRONTA;
 
+    if (taskID > 1) {
+        queue_append((queue_t**) &readyQueue, (queue_t *) task);
+        quantTasks++;
+    }
+    
     #ifdef DEBUG
         printf("PPOS: task %d created by task %d\n", task->id, curTask->id);
     #endif
@@ -75,7 +81,12 @@ void task_exit(int exit_code) {
     #ifdef DEBUG
         printf("PPOS: task %d ended with exit code %d\n", curTask->id, exit_code);
     #endif
-    task_switch(&mainTask);
+    curTask->status = TERMINADA;
+    if (curTask->id == 1) {
+        free(&dispatcherTask.context.uc_stack.ss_sp);
+        task_switch(&mainTask);
+    }
+    task_switch(&dispatcherTask);
 }
 
 // alterna a execução para a tarefa indicada
@@ -108,14 +119,20 @@ static void dispatcher() {
             fprintf(stderr, "erro task nula");
             exit (0);
         }
+
         task_switch(next);
+        queue_remove((queue_t **) &readyQueue, (queue_t *) next);
+        queue_append((queue_t **) &readyQueue, (queue_t *) next);
+
         if (next->status == TERMINADA) {
             queue_remove((queue_t **) &readyQueue, (queue_t*) next);
+            free(next->context.uc_stack.ss_sp);
+            quantTasks--;
         }       
     }
     task_exit(0);
 }
 
 void task_yield() {
-
+    task_switch(&dispatcherTask);
 }
