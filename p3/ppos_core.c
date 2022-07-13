@@ -10,6 +10,12 @@
 int taskID, quantTasks;
 task_t *curTask, *prevTask, mainTask, dispatcherTask, *readyQueue = NULL;
 
+static void dispatcher();
+
+task_t *scheduler() {
+    return readyQueue;
+}
+
 void ppos_init() {
     /* desativa o buffer da saida padrao (stdout), usado pela função printf */
     setvbuf(stdout, 0, _IONBF, 0);
@@ -100,12 +106,16 @@ static void dispatcher() {
         task_t *next = scheduler();
         if (!next) {
             fprintf(stderr, "erro task nula");
-            return -1;
+            exit (0);
         }
         task_switch(next);
         if (next->status == TERMINADA) {
-            queue_remove((queue_t **) &readyQueue, next);
+            queue_remove((queue_t **) &readyQueue, (queue_t*) next);
         }       
     }
     task_exit(0);
+}
+
+void task_yield() {
+
 }
