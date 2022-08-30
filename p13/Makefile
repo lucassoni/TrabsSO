@@ -1,10 +1,10 @@
 CC     = gcc
-CFLAGS = -Wall
-CLIBS = -lm
+CFLAGS = -Wall -g
+CLIBS = -lm -lrt
 DEBUG_FLAGS = -DDEBUG
 
-PROG = pingpong-disco1
-OBJS = ppos_core.o queue.o ppos_disk.o
+PROG = pingpong-disco2 pingpong-disco1
+OBJS = ppos_core.o queue.o ppos_disk.o disk.c
 
 .PHONY: clean purge all
 

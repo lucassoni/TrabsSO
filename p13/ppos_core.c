@@ -15,8 +15,8 @@
 #define QUANTUM 10
 // #define DEBUG
 
-int taskID, quantTasks, quantSleepTasks, temporizador, relogio, relogioTask;
-task_t *curTask, *prevTask, mainTask, dispatcherTask, *sleepQueue = NULL, *taskQueue = NULL;
+int taskID, quantTasks, quantSleepTasks, temporizador, relogio, relogioTask, userTasks;
+task_t *curTask, *prevTask, mainTask, dispatcherTask, disk_manager, *sleepQueue = NULL, *taskQueue = NULL;
 
 // estrutura que define um tratador de sinal (deve ser global ou static)
 struct sigaction action;
@@ -137,7 +137,7 @@ int task_create(task_t *task, void (*start_func)(void *), void *arg)
     task->activations = 0;
     task->suspendedQueue = NULL;
 
-    if (taskID > 1)
+    if (task != &dispatcherTask && task != &disk_manager)
     {
         queue_append((queue_t **)&taskQueue, (queue_t *)task);
         quantTasks++;

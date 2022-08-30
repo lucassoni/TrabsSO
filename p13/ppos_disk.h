@@ -10,11 +10,17 @@
 
 #include "ppos_data.h"
 
-typedef struct 
-{
-  struct request_t *next, *prev;
-} request_t;
+#define READ 0
+#define WRITE 1
 
+typedef struct request_t
+{
+  struct request_t *next, *prev; // ponteiros para uso de filas
+  task_t *task;
+  int type;
+  int block;
+  void *buffer;
+} request_t;
 
 // estruturas de dados e rotinas de inicializacao e acesso
 // a um dispositivo de entrada/saida orientado a blocos,
@@ -24,7 +30,7 @@ typedef struct
 {
   task_t *task_queue;
   semaphore_t sem_disk;
-  struct request_t *request_queue;
+  request_t *request_queue;
   // completar com os campos necessarios
 } disk_t;
 
@@ -32,12 +38,12 @@ typedef struct
 // retorna -1 em erro ou 0 em sucesso
 // numBlocks: tamanho do disco, em blocos
 // blockSize: tamanho de cada bloco do disco, em bytes
-int disk_mgr_init (int *numBlocks, int *blockSize) ;
+int disk_mgr_init(int *numBlocks, int *blockSize);
 
 // leitura de um bloco, do disco para o buffer
-int disk_block_read (int block, void *buffer) ;
+int disk_block_read(int block, void *buffer);
 
 // escrita de um bloco, do buffer para o disco
-int disk_block_write (int block, void *buffer) ;
+int disk_block_write(int block, void *buffer);
 
 #endif

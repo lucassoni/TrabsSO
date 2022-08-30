@@ -4,8 +4,9 @@
 #include "ppos_data.h"
 #include "ppos_disk.h"
 
-extern task_t diskManagerTask;
-extern task_t *currentTask;
-extern task_t *readyQueue;
+extern task_t disk_manager;
+extern task_t *curTask;
+extern task_t *taskQueue;
+extern task_t mainTask;
 
 #endif
