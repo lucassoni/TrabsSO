@@ -1,3 +1,4 @@
+// GRR20190395 Lucas Soni Teixeira
 #include "ppos_disk.h"
 #include "disk.h"
 #include "ppos.h"
@@ -29,18 +30,18 @@ void disk_signal_handler()
     }
 }
 
-static void suspend_task (task_t *task)
+static void suspend_task(task_t *task)
 {
-    queue_remove((queue_t **) &taskQueue, (queue_t *) task);
-    queue_append((queue_t **) &disk.task_queue, (queue_t *) task);
+    queue_remove((queue_t **)&taskQueue, (queue_t *)task);
+    queue_append((queue_t **)&disk.task_queue, (queue_t *)task);
     task->status = SUSPENSA;
 }
 
 // Reativa a tarefa task e a coloca na fila de prontas
-static void enable_task (task_t *task) 
+static void enable_task(task_t *task)
 {
-    queue_remove((queue_t **) &disk.task_queue, (queue_t *) task);
-    queue_append((queue_t **) &taskQueue, (queue_t *) task);
+    queue_remove((queue_t **)&disk.task_queue, (queue_t *)task);
+    queue_append((queue_t **)&taskQueue, (queue_t *)task);
     task->status = PRONTA;
 }
 
@@ -75,7 +76,7 @@ void diskDriverBody(void *args)
             request_t *req = disk.request_queue;
 
             // acorda a tarefa cujo pedido foi atendido
-            enable_task(task    );
+            enable_task(task);
             // remove o pedido da fila de pedidos
             queue_remove((queue_t **)&disk.request_queue, (queue_t *)req);
             free(req);

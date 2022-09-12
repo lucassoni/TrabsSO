@@ -1,3 +1,4 @@
+// GRR20190395 Lucas Soni Teixeira
 CC     = gcc
 CFLAGS = -Wall -g
 CLIBS = -lm -lrt
